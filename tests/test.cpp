@@ -1,7 +1,131 @@
-// Copyright 2020 Your Name <your_email>
+// Copyright 2020 Anastasiya Smirnova nastya.asya08@yandex.ru
 
 #include <gtest/gtest.h>
+#include "StackArgs.hpp"
+#include "Stack.hpp"
 
-TEST(Example, EmptyTest) {
-    EXPECT_TRUE(true);
+TEST(Stack,push_test_1)
+{
+    usualStack<int> my_stack;
+    for (size_t index = 1;index<=10;++index)
+        my_stack.push(index);
+    EXPECT_EQ(my_stack.head(),10);
+}
+
+TEST(Stack,push_test_2)
+{
+    usualStack<int> my_stack;
+
+    my_stack.push(std::move(1));
+    my_stack.push(std::move(5));
+    my_stack.push(std::move(10));
+
+    EXPECT_EQ(my_stack.head(),10);
+}
+
+TEST(Stack,push_test_3)
+{
+    usualStack<int> my_stack;
+
+    my_stack.push(std::move(1));
+    EXPECT_EQ(my_stack.head(),1);
+    my_stack.push(std::move(5));
+    EXPECT_EQ(my_stack.head(),5);
+    my_stack.push(std::move(10));
+    EXPECT_EQ(my_stack.head(),10);
+}
+
+TEST(Stack,push_test_4)
+{
+    usualStack<int> my_stack;
+    int one = 90;
+    my_stack.push(one);
+    EXPECT_EQ(my_stack.head(),90);
+    my_stack.push(5);
+    EXPECT_EQ(my_stack.head(),5);
+    my_stack.push(10);
+    EXPECT_EQ(my_stack.head(),10);
+}
+
+TEST(Stack,pop_test_1)
+{
+    usualStack<int> my_stack;
+
+    my_stack.push(std::move(1));
+    my_stack.push(std::move(5));
+    my_stack.pop();
+
+    EXPECT_EQ(my_stack.head(),1);
+}
+
+TEST(Stack,Exeption)
+{
+    usualStack<int> my_stack;
+    EXPECT_THROW(my_stack.head(),std::exception);
+    EXPECT_THROW(my_stack.pop(),std::exception);
+    stackArgs<int> my_new_stack;
+    EXPECT_THROW(my_new_stack.head(),std::exception);
+    EXPECT_THROW(my_new_stack.pop(),std::exception);
+}
+
+TEST(StackNonCopy, test1)
+{
+    stackArgs<int> my_stack;
+
+    my_stack.push(std::move(1));
+    my_stack.push(5);
+
+    my_stack.push_emplace(4);
+    my_stack.push_emplace(3);
+
+    EXPECT_EQ(my_stack.head(),3);
+    EXPECT_EQ(my_stack.pop(),3);
+}
+
+TEST(StackNonCopy, test2){
+
+    stackArgs<int> my_stack;
+
+    my_stack.push(std::move(1));
+    my_stack.push(5.);
+    my_stack.push_emplace('f');
+    my_stack.push_emplace(true);
+
+    EXPECT_EQ(my_stack.head(),true);
+    EXPECT_EQ(my_stack.pop(),true);
+    EXPECT_EQ(my_stack.head(), 'f');
+
+    EXPECT_EQ(my_stack.pop(),'f');
+    EXPECT_EQ(my_stack.head(), 5.);
+
+    EXPECT_EQ(my_stack.pop(),5.);
+    EXPECT_EQ(my_stack.head(), 1);
+
+    EXPECT_EQ(my_stack.pop(),1);
+
+
+    EXPECT_THROW(my_stack.head(),std::exception);
+    EXPECT_THROW(my_stack.pop(),std::exception);
+}
+
+TEST(StackNonCopy, test3){
+    stackArgs<std::pair<std::string,bool >> my_stack;
+    std::pair<std::string,bool > one;
+    one.first = "key";
+    one.second = true;
+    my_stack.push_emplace(one);
+
+    std::pair <std::string, bool> second;
+    second.first = "key";
+    second.second = true;
+    my_stack.push_emplace(second);
+    EXPECT_EQ(my_stack.head(), second);
+    EXPECT_EQ(my_stack.pop(), second);
+    EXPECT_EQ(my_stack.head(), one);
+}
+TEST(Stack, IsMoveConstuctibleAssignable) {
+    EXPECT_TRUE(std::is_move_constructible<stackArgs<int>>());
+    EXPECT_TRUE(std::is_move_constructible<usualStack<int>>());
+    EXPECT_TRUE(std::is_move_assignable<usualStack<int>>());
+    EXPECT_TRUE(std::is_move_assignable<stackArgs<int>>());
 }
